@@ -7,12 +7,19 @@ public class SpawnTestWeights : MonoBehaviour
 {
     public GameObject weightPrefab;
     public GameObject heartPrefab;
+    public GameObject featherPrefab;
+
     public float lightHeartWeight = 0;
     public float heavyHeartWeight = 5;
 
     public GameObject spawnPointLeft;
     public GameObject spawnPointRight;
     public Scales_Balance_Calc scales_Balance_Calc;
+
+    [SerializeField] float howLongWaitForNewHeartSpawn = 4;
+    [SerializeField] float howLongBeforeFeatherDespawns = 4;
+
+    public GameObject currentFeather;
     public enum SpawnPlace
     {
         Left,
@@ -23,21 +30,25 @@ public class SpawnTestWeights : MonoBehaviour
     {
        //  SpawnObjRight(1f); // debug
     }
-    public void SpawnObjRight(float weight)
+    public GameObject SpawnObjRight(float weight)
     {
-        SpawnObj(weight, SpawnPlace.Right);
+     GameObject _spawnedWeight =    SpawnObj(weight, SpawnPlace.Right);
+       
+        return _spawnedWeight;
     }
 
-    public void SpawnObjLeft(float weight)
+    public GameObject SpawnObjLeft(float weight)
     {
-        SpawnObj(weight, SpawnPlace.Left);
+        GameObject _spawnedWeight = SpawnObj(weight, SpawnPlace.Left);
+        return _spawnedWeight;
     }
 
     public void SpawnHeartLeft(bool isHeavy)
     {
+        GameObject instantiatedWeight = null;
         if (isHeavy)
         {
-            GameObject instantiatedWeight = Instantiate(heartPrefab, spawnPointLeft.transform.position, Quaternion.identity);
+             instantiatedWeight = Instantiate(heartPrefab, spawnPointLeft.transform.position, Quaternion.identity);
 
 
 
@@ -47,7 +58,7 @@ public class SpawnTestWeights : MonoBehaviour
         }
         else
         {
-            GameObject instantiatedWeight = Instantiate(heartPrefab, spawnPointLeft.transform.position, Quaternion.identity);
+            instantiatedWeight = Instantiate(heartPrefab, spawnPointLeft.transform.position, Quaternion.identity);
 
 
 
@@ -55,12 +66,29 @@ public class SpawnTestWeights : MonoBehaviour
             thisInstantiatedObjScript.SetWeightAndSpawnPlace(lightHeartWeight, SpawnPlace.Left);
             scales_Balance_Calc.AddWeight(lightHeartWeight, SpawnPlace.Left);
         }
+
+
+        //despawn heart, spawn feather after a while
+        Destroy(instantiatedWeight, howLongWaitForNewHeartSpawn);
+        Destroy(currentFeather, howLongBeforeFeatherDespawns);
+        StartCoroutine(SpawnFeatherAfterHeartDespawn());
+
     }
-    void SpawnObj(float weight, SpawnPlace spawnPlace)
+    IEnumerator SpawnFeatherAfterHeartDespawn()
     {
+        yield return new WaitForSeconds(howLongWaitForNewHeartSpawn);
+        GameObject feather = Instantiate(featherPrefab, spawnPointRight.transform.position, Quaternion.identity);
+        currentFeather = feather;
+        DeleteOnClick thisInstantiatedObjScript = feather.GetComponent<DeleteOnClick>();
+        thisInstantiatedObjScript.SetWeightAndSpawnPlace(0, SpawnPlace.Right);
+       
+    }
+    GameObject SpawnObj(float weight, SpawnPlace spawnPlace)
+    {
+        GameObject instantiatedWeight = null;
         if (spawnPlace == SpawnPlace.Left)
         {
-            GameObject instantiatedWeight = Instantiate(weightPrefab, spawnPointLeft.transform.position, Quaternion.identity);
+            instantiatedWeight = Instantiate(weightPrefab, spawnPointLeft.transform.position, Quaternion.identity);
            
             
            
@@ -71,7 +99,7 @@ public class SpawnTestWeights : MonoBehaviour
 
         if (spawnPlace == SpawnPlace.Right)
         {
-            GameObject instantiatedWeight = Instantiate(weightPrefab, spawnPointRight.transform.position, Quaternion.identity);
+             instantiatedWeight = Instantiate(weightPrefab, spawnPointRight.transform.position, Quaternion.identity);
 
 
             DeleteOnClick thisInstantiatedObjScript = instantiatedWeight.GetComponent<DeleteOnClick>();
@@ -79,5 +107,6 @@ public class SpawnTestWeights : MonoBehaviour
             scales_Balance_Calc.AddWeight(weight, spawnPlace);
 
         }
+        return instantiatedWeight;
     }
 }

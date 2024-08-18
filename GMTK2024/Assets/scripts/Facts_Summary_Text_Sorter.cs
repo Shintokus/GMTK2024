@@ -12,21 +12,28 @@ public class Facts_Summary_Text_Sorter : MonoBehaviour
     public List<Fact> currentFactsAlreadyGivenToThePlayer;
     public LoadCharacterDisplayText loadCharacterDisplayText;
     public SpawnTestWeights scalesSpawnerFactsSummary;
+    public Dictionary<Fact, TextMeshProUGUI> currentFactAndTmpPairs = new (); // keeps track of which fact is in which slot
+    public Dictionary<Fact, GameObject> factWeightObjectPairs = new(); // keeps track what weights - facts are on the scales
 
     void Start()
     {
         loadCharacterDisplayText = GetComponent<LoadCharacterDisplayText>();
     }
 
-    public void SortFrontFact(Fact fact)
+    public void SortFrontFact(Fact fact, bool isFrontFact)
     {
+        if (isFrontFact)
+        { 
         if (fact.frontWeight >= 0)
         {
           int slotNum =  WhichTextSlotIsVacant(isGoodSlot: true );
             currentFactsInGoodSlots.Add(fact);
             goodFactsTMP[slotNum].text = fact.frontFactForSummaryScales;
             goodFactsTMP[slotNum].gameObject.SetActive(true);
-            scalesSpawnerFactsSummary.SpawnObjRight(Mathf.Abs(fact.frontWeight));
+            
+            currentFactAndTmpPairs.Add(fact, goodFactsTMP[slotNum]);
+           
+           factWeightObjectPairs.Add(fact, scalesSpawnerFactsSummary.SpawnObjRight(Mathf.Abs(fact.frontWeight)));
         }
         else
         {
@@ -34,16 +41,46 @@ public class Facts_Summary_Text_Sorter : MonoBehaviour
             currentFactsInBadSlots.Add(fact);
             badFactsTMP[slotNum].text = fact.frontFactForSummaryScales;
             badFactsTMP[slotNum].gameObject.SetActive(true);
-            scalesSpawnerFactsSummary.SpawnObjLeft(Mathf.Abs(fact.frontWeight));
-        }
 
+            currentFactAndTmpPairs.Add(fact, badFactsTMP[slotNum]);
+
+            factWeightObjectPairs.Add(fact, scalesSpawnerFactsSummary.SpawnObjLeft(Mathf.Abs(fact.frontWeight)));
+        }
+        }
+        else if (!isFrontFact)
+
+
+        {
+            if (fact.actualWeight >= 0)
+            {
+                int slotNum = WhichTextSlotIsVacant(isGoodSlot: true);
+                currentFactsInGoodSlots.Add(fact);
+                goodFactsTMP[slotNum].text = fact.actualFactForSummaryScales;
+                goodFactsTMP[slotNum].gameObject.SetActive(true);
+
+                currentFactAndTmpPairs.Add(fact, goodFactsTMP[slotNum]);
+
+                factWeightObjectPairs.Add(fact, scalesSpawnerFactsSummary.SpawnObjRight(Mathf.Abs(fact.actualWeight)));
+            }
+            else
+            {
+                int slotNum = WhichTextSlotIsVacant(isGoodSlot: false);
+                currentFactsInBadSlots.Add(fact);
+                badFactsTMP[slotNum].text = fact.actualFactForSummaryScales;
+                badFactsTMP[slotNum].gameObject.SetActive(true);
+
+                currentFactAndTmpPairs.Add(fact, badFactsTMP[slotNum]);
+
+                factWeightObjectPairs.Add(fact, scalesSpawnerFactsSummary.SpawnObjLeft(Mathf.Abs(fact.actualWeight)));
+            }
+        }
         currentFactsAlreadyGivenToThePlayer.Add(fact);
-        // spawn a cube to put on the scales
+        
     }
 
  
 
-    public bool hasLiedToThePlayer()
+    public bool HasLiedToThePlayer()
     {
        
         foreach(Fact factGiven in currentFactsAlreadyGivenToThePlayer)
@@ -79,15 +116,30 @@ public class Facts_Summary_Text_Sorter : MonoBehaviour
         {
             if (character.facts[i].actualWeight < 0)
             {
-                badFactsTMP[WhichTextSlotIsVacant(true)].text = character.facts[i].actualFactForSummaryScales;
-                badFactsTMP[WhichTextSlotIsVacant(true)].gameObject.SetActive(true);
+                badFactsTMP[WhichTextSlotIsVacant(false)].text = character.facts[i].actualFactForSummaryScales;
+                badFactsTMP[WhichTextSlotIsVacant(false)].gameObject.SetActive(true);
             }
 
         }
 
     }
 
+    public TextMeshProUGUI FindTMPForFalseFact()
+    {
+        TextMeshProUGUI tmp = null;
+        tmp = badFactsTMP[WhichTextSlotIsVacant(false)];
+        return tmp;
+    }
 
+    public void StrikeThroughFactInTheList(Fact fact)
+    {
+        TextMeshProUGUI tmp = currentFactAndTmpPairs[fact];
+       
+        tmp.color = Color.black;
+        tmp.fontStyle = FontStyles.Strikethrough;
+
+        //remove its associated weight from the scales
+    }
 
 
     // returns the index of the first empty slot in the good or bad list

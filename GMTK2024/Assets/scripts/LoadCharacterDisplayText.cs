@@ -43,7 +43,7 @@ public class LoadCharacterDisplayText : MonoBehaviour
     {
         currentCharacter = character;
         LoadCharacterText();
-        factSorter.SortFrontFact(currentCharacter.facts[0]);
+        factSorter.SortFrontFact(currentCharacter.facts[0], isFrontFact: true);
         characterSR.sprite = currentCharacter.characterSprite;
     }
     
@@ -64,7 +64,7 @@ public class LoadCharacterDisplayText : MonoBehaviour
 
 
         //puts this fact near the summarizing scales (green or red)
-        factSorter.SortFrontFact(currentCharacter.facts[index]);
+        factSorter.SortFrontFact(currentCharacter.facts[index], isFrontFact: true);
 
 
 
