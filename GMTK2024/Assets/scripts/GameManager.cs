@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +11,9 @@ public class GameManager : MonoBehaviour
     public LoadCharacterDisplayText loadCharacterDisplayText;
     public Character currentCharacterJudged;
     public AllUIRefs allUIRefs;
+
+    public int turns;
+    public int incorrectChoices;
   
 
     public static GameManager instance;
@@ -24,6 +29,14 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(this);
+        }
+    }
+
+    private void Update()
+    {
+        if (turns <= 0 || incorrectChoices < -3)
+        {
+            GameOver();
         }
     }
 
@@ -43,14 +56,30 @@ public class GameManager : MonoBehaviour
     }
 
     public void Judge()
+    { 
+        allUIRefs.HideUIJudge();
+        UIManager.instance.inVerdictState = true;
+    }
+
+    private void GameOver()
     {
-      allUIRefs.HideUIJudge();
+        // TODO: IMPLEMENT ACTUAL GAME OVER LOGIC
+        Debug.Log("Game Over");
     }
    
-    public void HeavenOrHellChoose()
+    public void HeavenOrHellChoose(bool heaven)
     {
+        if ((heaven && currentCharacterJudged.shouldGoToHeaven) || !heaven && !currentCharacterJudged.shouldGoToHeaven)
+        {
+            // NO POINTS ARE LOST
+        }
+        else
+        {
+            // LOSE POINTS
+            incorrectChoices += 1;
+            UIManager.instance.UpdateVerdictsText();
+        }
        FindObjectOfType<Facts_Summary_Text_Sorter>().ShowTrueFacts();
-        // show "Next level" button
        allUIRefs.ShowNextLevelButton();
     }
 

@@ -9,8 +9,12 @@ public class Character : ScriptableObject
     public List<Fact> facts; // 0 is opening fact?
    [SerializeField] int summedFrontKarma;
     [SerializeField] int summedActualKarma;
+    public string characterName;
     public Sprite characterSprite;
     [HideInInspector] public int karma;
+
+    public bool shouldGoToHeaven;
+    
     // Start is called before the first frame update
     void Start()
     {

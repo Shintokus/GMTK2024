@@ -10,7 +10,7 @@ public class Facts_Summary_Text_Sorter : MonoBehaviour
     public List<Fact> currentFactsInGoodSlots;
     public List<Fact> currentFactsInBadSlots;
     public List<Fact> currentFactsAlreadyGivenToThePlayer;
-    LoadCharacterDisplayText loadCharacterDisplayText;
+    public LoadCharacterDisplayText loadCharacterDisplayText;
     public SpawnTestWeights scalesSpawnerFactsSummary;
 
     void Start()

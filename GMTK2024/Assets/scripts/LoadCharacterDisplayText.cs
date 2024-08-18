@@ -11,25 +11,30 @@ public class LoadCharacterDisplayText : MonoBehaviour
     public Character currentCharacter;
     [SerializeField] Facts_Summary_Text_Sorter factSorter;
     [SerializeField] SpriteRenderer characterSR;
+
+    public int questionsRemaining;
     // Start is called before the first frame update
     void Start()
     {
-        
+        UpdateCurrentCharacter();
     }
 
-    // Update is called once per frame
-    void Update()
+    void UpdateCurrentCharacter()
     {
-        
+        currentCharacter = GameManager.instance.currentCharacterJudged;
     }
 
    void LoadCharacterText()
     {
-        chat[0].text = currentCharacter.facts[0].frontFact; // first pos in the list is the front fact, there's no question
+        UIManager.instance.characterText.text = currentCharacter.facts[0].frontFact; // first pos in the list is the front fact, there's no question
+        UIManager.instance.characterName.text = currentCharacter.characterName;
         SetAnswerTextRedOrGreen(0);
-
+        
+        
         for (int i = 1; i < chat.Count; i++)
         {
+            if (chat[i] == null) return;
+            
             chat[i].text = currentCharacter.facts[i].question;
         }
     }
@@ -41,10 +46,13 @@ public class LoadCharacterDisplayText : MonoBehaviour
         factSorter.SortFrontFact(currentCharacter.facts[0]);
         characterSR.sprite = currentCharacter.characterSprite;
     }
+    
 
     public void PressQuestion(int index)
     {
         //!!connect it to turn based system
+        GameManager.instance.turns -= 1;
+        UIManager.instance.UpdateTurnsText();
 
 
         //shows the answer to your question
@@ -61,8 +69,9 @@ public class LoadCharacterDisplayText : MonoBehaviour
 
 
         //disables the pressed button and greys out the text              
-        chat[index].GetComponent<Button>().interactable = false;
-        chat[index].color = Color.gray;
+        //chat[index].GetComponent<Button>().interactable = false;
+        //chat[index].color = Color.gray;
+        UIManager.instance.questionsRemaining -= 1;
 
 
 
